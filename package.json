@@ -1,0 +1,19 @@
+{
+  "name": "drr",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/genai": "^0.7.0",
+    "axios": "^1.8.4",
+    "express": "^5.1.0",
+    "firebase": "^11.6.0",
+    "nodemon": "^3.1.9",
+    "pdfkit": "^0.16.0"
+  }
+}
