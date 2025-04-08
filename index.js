@@ -9,7 +9,7 @@
  * 5. Send the URL via WhatsApp using the provided API.
  *
  * Make sure you have installed the dependencies:
- *   npm install express fs path pdfkit @google/genai firebase axios
+ *   npm install express fs path pdfkit @google/genai firebase axios cors
  *
  * To run:
  *   node index.js
@@ -21,6 +21,7 @@ const path = require("path");
 const PDFDocument = require("pdfkit");
 const { GoogleGenAI, Type } = require("@google/genai");
 const axios = require("axios");
+const cors = require("cors"); // Import the CORS middleware
 
 // Initialize Firebase using the client SDK
 const { initializeApp } = require("firebase/app");
@@ -42,6 +43,9 @@ const firebaseApp = initializeApp(firebaseConfig);
 const storage = getStorage(firebaseApp);
 
 const app = express();
+
+// Use CORS middleware to allow requests from any origin
+app.use(cors());
 
 // Middleware to parse JSON bodies
 app.use(express.json());
