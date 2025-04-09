@@ -43,6 +43,13 @@ const storage = getStorage(firebaseApp);
 
 const app = express();
 
+// Middleware to allow all origins (no external CORS library used)
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 // Middleware to parse JSON bodies
 app.use(express.json());
 
