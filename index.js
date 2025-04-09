@@ -9,7 +9,7 @@
  * 5. Send the URL via WhatsApp using the provided API.
  *
  * Make sure you have installed the dependencies:
- *   npm install express fs path pdfkit @google/genai firebase axios
+ *   npm install express fs path pdfkit @google/genai firebase axios cors
  *
  * To run:
  *   node index.js
@@ -21,6 +21,7 @@ const path = require("path");
 const PDFDocument = require("pdfkit");
 const { GoogleGenAI, Type } = require("@google/genai");
 const axios = require("axios");
+const cors = require("cors"); // Import the CORS middleware
 
 // Initialize Firebase using the client SDK
 const { initializeApp } = require("firebase/app");
@@ -42,6 +43,9 @@ const firebaseApp = initializeApp(firebaseConfig);
 const storage = getStorage(firebaseApp);
 
 const app = express();
+
+// Use CORS middleware to allow requests from any origin
+app.use(cors());
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -203,7 +207,7 @@ Ensure the JSON is properly formatted.`;
         // ---------------------------------------
         const phoneNumber = pdfData.patient.phone.replace(/\s+/g, "");
         const bodyData = {
-          token: "99583991572",
+          token: "9958399157",
           number: `91${phoneNumber}`,
           imageUrl: downloadUrl,
           caption: "Hello, here is your medical prescription. Please review and follow the instructions carefully."
