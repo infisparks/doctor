@@ -174,7 +174,7 @@
         </div>`;
 
         try {
-          const response = await fetch("https://dc84cg8kcs80c80gow4gskoc.194.164.148.53.sslip.io/generatePrescription", {
+          const response = await fetch("http://dc84cg8kcs80c80gow4gskoc.194.164.148.53.sslip.io/generatePrescription", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text: promptText })
