@@ -3,38 +3,83 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Prescription Generator</title>
+    <title>AI Prescription Generator</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <style>
+      /* Custom Animations */
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+      }
+      @keyframes beat {
+        0% { transform: scale(1); opacity: 0.7; }
+        50% { transform: scale(1.15); opacity: 1; }
+        100% { transform: scale(1); opacity: 0.7; }
+      }
+      .pulse-animation { animation: pulse 2s infinite; }
+      .beat-animation.active { animation: beat 0.5s infinite; }
+      .gradient-bg {
+        background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      }
+      .glow {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-in;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
   </head>
-  <body class="bg-gray-100">
-    <div class="min-h-screen flex items-center justify-center">
-      <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-6 text-center">Prescription Generator</h1>
-        <div class="mb-4">
-          <label for="prompt" class="block text-gray-700 mb-2">Enter your prompt:</label>
+  <body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div class="container mx-auto px-4">
+      <div class="max-w-lg mx-auto bg-gray-800 rounded-xl p-8 shadow-2xl glow">
+        <!-- Header with AI Logo -->
+        <div class="flex justify-center mb-6">
+          <img src="https://via.placeholder.com/100?text=AI+Logo" alt="AI Logo" class="w-16 h-16" />
+        </div>
+        <h1 class="text-3xl font-bold text-center mb-4">AI Prescription Generator</h1>
+        <p class="text-center text-gray-400 mb-8">Use voice or text to generate prescriptions instantly</p>
+
+        <!-- Voice Input as Main Component -->
+        <div class="flex justify-center mb-8">
+          <button
+            id="voiceBtn"
+            class="relative bg-blue-600 text-white p-6 rounded-full hover:bg-blue-700 focus:outline-none transition duration-300 pulse-animation"
+          >
+            <i class="fas fa-microphone text-4xl"></i>
+            <div id="beatOverlay" class="absolute inset-0 rounded-full beat-animation hidden"></div>
+          </button>
+        </div>
+
+        <!-- Text Input as Secondary Option -->
+        <div class="mb-6">
           <input
             type="text"
             id="prompt"
-            class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-            placeholder="Type your prompt or use voice input"
+            class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white placeholder-gray-400"
+            placeholder="Or type your prompt here..."
           />
         </div>
-        <div class="flex justify-between mb-4">
-          <button
-            id="voiceBtn"
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none"
-          >
-            Record Voice
-          </button>
+
+        <!-- Submit Button -->
+        <div class="flex justify-center mb-6">
           <button
             id="submitBtn"
-            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 focus:outline-none"
+            class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 focus:outline-none transition duration-300"
           >
-            Submit
+            Generate Prescription
           </button>
         </div>
-        <div id="response" class="mt-4 p-4 border border-gray-300 rounded"></div>
+
+        <!-- Response Area -->
+        <div id="response" class="p-4 bg-gray-700 rounded-lg text-gray-200 min-h-[100px] fade-in"></div>
       </div>
     </div>
 
@@ -44,6 +89,7 @@
       const responseDiv = document.getElementById('response');
       const voiceBtn = document.getElementById('voiceBtn');
       const submitBtn = document.getElementById('submitBtn');
+      const beatOverlay = document.getElementById('beatOverlay');
 
       // Check for Speech Recognition support
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -54,23 +100,69 @@
         recognition.continuous = false;
         recognition.interimResults = false;
 
+        recognition.onstart = function() {
+          beatOverlay.classList.remove('hidden');
+          beatOverlay.classList.add('active');
+          responseDiv.innerHTML = "<p class='text-gray-400 fade-in'>Listening...</p>";
+        };
+
+        recognition.onend = function() {
+          beatOverlay.classList.add('hidden');
+          beatOverlay.classList.remove('active');
+        };
+
         recognition.onresult = function(event) {
           const transcript = event.results[0][0].transcript;
           promptInput.value = transcript;
+          responseDiv.innerHTML = "<p class='text-gray-400 fade-in'>Transcription: " + transcript + "</p>";
         };
 
         recognition.onerror = function(event) {
+          let errorMessage = '';
+          switch (event.error) {
+            case 'no-speech':
+              errorMessage = 'No speech detected. Please try speaking again.';
+              break;
+            case 'audio-capture':
+              errorMessage = 'Microphone not detected. Please ensure your microphone is connected.';
+              break;
+            case 'not-allowed':
+              errorMessage = 'Microphone access denied. Please allow microphone permissions in your browser.';
+              break;
+            case 'network':
+              errorMessage = 'Network error. Please check your internet connection.';
+              break;
+            default:
+              errorMessage = 'Speech recognition error: ' + event.error;
+          }
+          responseDiv.innerHTML = "<p class='text-red-400 fade-in'>" + errorMessage + "</p>";
           console.error('Speech recognition error:', event.error);
         };
       } else {
         voiceBtn.disabled = true;
-        voiceBtn.innerText = "Voice not supported";
+        voiceBtn.innerHTML = "<i class='fas fa-microphone-slash text-4xl'></i>";
+        responseDiv.innerHTML = "<p class='text-red-400 fade-in'>Voice input not supported in this browser.</p>";
+      }
+
+      // Check microphone permission before starting recognition
+      async function checkMicPermission() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
+          return true;
+        } catch (err) {
+          responseDiv.innerHTML = "<p class='text-red-400 fade-in'>Microphone access denied. Please allow microphone permissions.</p>";
+          return false;
+        }
       }
 
       // Start voice recognition on button click
-      voiceBtn.addEventListener('click', function() {
+      voiceBtn.addEventListener('click', async function() {
         if (recognition) {
-          recognition.start();
+          const hasPermission = await checkMicPermission();
+          if (hasPermission) {
+            recognition.start();
+          }
         }
       });
 
@@ -78,12 +170,11 @@
       submitBtn.addEventListener('click', function() {
         const promptText = promptInput.value.trim();
         if (!promptText) {
-          responseDiv.innerHTML = "<p class='text-red-500'>Please enter a prompt.</p>";
+          responseDiv.innerHTML = "<p class='text-red-400 fade-in'>Please enter a prompt or use voice input.</p>";
           return;
         }
-        responseDiv.innerHTML = "<p>Loading...</p>";
+        responseDiv.innerHTML = "<p class='text-gray-400 fade-in'>Generating prescription...</p>";
 
-        // IMPORTANT: Use HTTPS to match the secure origin of your page.
         fetch("https://doctor.medblisss.com/generatePrescription", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -97,13 +188,13 @@
           })
           .then(function(data) {
             responseDiv.innerHTML =
-              "<pre class='whitespace-pre-wrap'>" +
+              "<pre class='whitespace-pre-wrap fade-in'>" +
               JSON.stringify(data, null, 2) +
               "</pre>";
           })
           .catch(function(error) {
             console.error('Error:', error);
-            responseDiv.innerHTML = "<p class='text-red-500'>An error occurred. Please try again.</p>";
+            responseDiv.innerHTML = "<p class='text-red-400 fade-in'>An error occurred while generating the prescription. Please try again.</p>";
           });
       });
     </script>
