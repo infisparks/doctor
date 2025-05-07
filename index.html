@@ -84,7 +84,7 @@
         responseDiv.innerHTML = "<p>Loading...</p>";
 
         // IMPORTANT: Use HTTPS to match the secure origin of your page.
-        fetch("https://dc84cg8kcs80c80gow4gskoc.194.164.148.53.sslip.io/generatePrescription", {
+        fetch("http://dc84cg8kcs80c80gow4gskoc.194.164.148.53.sslip.io/generatePrescription", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: promptText })
